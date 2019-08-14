@@ -2,7 +2,11 @@
 # createdAt
 # [todoId]
 
-type Resolutions {
+type Resolution {
     _id: String!
     name: String!
+}
+
+type Query {
+    resolutions: [Resolution]
 }

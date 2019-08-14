@@ -4,7 +4,10 @@ import { gql } from "apollo-boost"
 
 const MY_QUERY = gql`
 {
-   hi
+    resolutions{
+        _id
+        name
+    }
 }
 `;
 
@@ -14,7 +17,15 @@ const App = () => {
     if (loading) return <span>&nbsp;</span>;
     if (error) return <span>Error :(</span>;
 
-    return <h1>{ data.hi }</h1>
+    return (
+        <div>
+            <ul>
+                { data.resolutions.map(resolution => (
+                    <li key={ resolution._id }>{ resolution.name }</li>
+                )) }
+            </ul>
+        </div>
+    )
 };
 
 export default App

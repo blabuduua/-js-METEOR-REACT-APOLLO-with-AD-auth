@@ -2,25 +2,15 @@ import { ApolloServer, gql } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
 import { getUser } from 'meteor/apollo'
 
-import ResolutionsSchema from '../../api/resolutions/Resolutions.graphql'
-
-const TestSchema = `
-type Query {
-    hi: String
-}
-`;
+import ResolutionSchema from '../../api/resolutions/Resolution.graphql'
+import ResolutionResolvers from '../../api/resolutions/resolvers'
 
 const typeDefs = [
-    TestSchema,
-    ResolutionsSchema
+    ResolutionSchema
 ];
 
 const resolvers = {
-    Query: {
-        hi() {
-            return 'Matrix!'
-        }
-    }
+    ...ResolutionResolvers
 };
 
 const server = new ApolloServer({
