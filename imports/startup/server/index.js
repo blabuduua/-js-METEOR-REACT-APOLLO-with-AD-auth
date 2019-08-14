@@ -2,6 +2,8 @@ import { ApolloServer, gql } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
 import { getUser } from 'meteor/apollo'
 
+import './register-api'
+
 const typeDefs = `
 type Query {
     hi: String
