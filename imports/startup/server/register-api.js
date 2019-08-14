@@ -4,11 +4,16 @@ import { getUser } from 'meteor/apollo'
 
 import ResolutionsSchema from '../../api/resolutions/Resolutions.graphql'
 
-const typeDefs = `
+const TestSchema = `
 type Query {
     hi: String
 }
 `;
+
+const typeDefs = [
+    TestSchema,
+    ResolutionsSchema
+];
 
 const resolvers = {
     Query: {
