@@ -13,7 +13,7 @@ type Query {
 const resolvers = {
     Query: {
         hi() {
-            return 'Hello!'
+            return 'Matrix!'
         }
     }
 };
