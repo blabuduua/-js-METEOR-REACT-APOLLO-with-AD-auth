@@ -1,8 +1,8 @@
 import React from 'react'
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery } from '@apollo/react-hooks'
 import { gql } from "apollo-boost"
-
 import ResolutionForm from './ResolutionForm'
+import RegisterForm from './RegisterForm'
 
 const getResolutions = gql`
 query Resolutions{
@@ -21,6 +21,7 @@ export default App = () => {
 
     return (
         <div>
+            <RegisterForm />
             <ResolutionForm />
             <ul>
                 { data.resolutions.map(resolution => (
