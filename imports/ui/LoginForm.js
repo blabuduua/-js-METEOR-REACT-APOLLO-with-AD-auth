@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-export default LoginForm = () => {
+export default LoginForm = (props) => {
     let login;
     let password;
 
@@ -9,6 +9,9 @@ export default LoginForm = () => {
 
         Meteor.loginWithPassword(login.value + '@flyuia.com', password.value,
             error => {
+                if(!error){
+                    props.client.resetStore();
+                }
                 console.log('cb login ' +error)
             });
 

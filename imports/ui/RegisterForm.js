@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-export default RegisterForm = () => {
+export default RegisterForm = (props) => {
     let login;
     let password;
 
@@ -13,6 +13,9 @@ export default RegisterForm = () => {
             password: password.value
         },
         error => {
+            if(!error){
+                props.client.resetStore();
+            }
             console.log('cb register ' + error)
         });
 

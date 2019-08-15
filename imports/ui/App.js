@@ -17,16 +17,16 @@ query Resolutions{
 `;
 
 export default App = () => {
-    const { loading, error, data } = useQuery(getResolutions);
+    const { loading, error, data, client } = useQuery(getResolutions);
 
     if (loading) return <span>&nbsp;</span>;
     if (error) return <span>Error :(</span>;
 
     return (
         <div>
-            <RegisterForm />
-            <LoginForm />
-            <LogoutButton />
+            <LogoutButton client={ client } />
+            <RegisterForm client={ client } />
+            <LoginForm client={ client } />
             <ResolutionForm />
             <ul>
                 { data.resolutions.map(resolution => (
