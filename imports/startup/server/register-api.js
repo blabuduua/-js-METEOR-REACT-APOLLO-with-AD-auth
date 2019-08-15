@@ -5,6 +5,8 @@ import { getUser } from 'meteor/apollo'
 import ResolutionSchema from '../../api/resolutions/Resolution.graphql'
 import ResolutionResolvers from '../../api/resolutions/resolvers'
 
+// R
+
 const typeDefs = [
     ResolutionSchema
 ];
