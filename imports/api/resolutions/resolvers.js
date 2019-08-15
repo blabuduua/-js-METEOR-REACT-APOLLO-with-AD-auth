@@ -2,7 +2,9 @@ import Resolutions from './resolutions'
 
 export default {
     Query: {
-        resolutions() {
+        resolutions(obj, data, { user }) {
+            console.log(user._id);
+
             return Resolutions.find({}).fetch();
         }
     },
