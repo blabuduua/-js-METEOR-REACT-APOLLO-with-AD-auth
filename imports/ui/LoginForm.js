@@ -9,7 +9,7 @@ export default LoginForm = () => {
 
         Meteor.loginWithPassword(login.value + '@flyuia.com', password.value,
             error => {
-                console.log(error)
+                console.log('cb login ' +error)
             });
 
         login.value = '';
@@ -22,5 +22,5 @@ export default LoginForm = () => {
             <input type="password" ref={ (input) => password = input } />
             <button type="submit">Авторизация</button>
         </form>
-)
+    )
 }

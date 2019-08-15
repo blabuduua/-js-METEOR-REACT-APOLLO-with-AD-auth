@@ -5,6 +5,7 @@ import { gql } from "apollo-boost"
 import ResolutionForm from './ResolutionForm'
 import RegisterForm from './RegisterForm'
 import LoginForm from './LoginForm'
+import LogoutButton from './LogoutButton'
 
 const getResolutions = gql`
 query Resolutions{
@@ -25,6 +26,7 @@ export default App = () => {
         <div>
             <RegisterForm />
             <LoginForm />
+            <LogoutButton />
             <ResolutionForm />
             <ul>
                 { data.resolutions.map(resolution => (

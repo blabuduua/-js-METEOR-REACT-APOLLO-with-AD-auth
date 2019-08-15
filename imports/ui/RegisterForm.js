@@ -13,7 +13,7 @@ export default RegisterForm = () => {
             password: password.value
         },
         error => {
-            console.log(error)
+            console.log('cb register ' + error)
         });
 
         login.value = '';
