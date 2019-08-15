@@ -16,8 +16,8 @@ export default RegisterForm = () => {
             console.log(error)
         });
 
-        name.login = '';
-        name.password = '';
+        login.value = '';
+        password.value = '';
     };
 
     return (
