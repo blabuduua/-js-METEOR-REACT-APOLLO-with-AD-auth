@@ -5,7 +5,7 @@ import { gql } from "apollo-boost"
 import ResolutionForm from './ResolutionForm'
 
 const getResolutions = gql`
-{
+query Resolutions{
     resolutions{
         _id
         name

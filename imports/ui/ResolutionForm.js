@@ -12,18 +12,18 @@ mutation createResolution($name: String!){
 
 export default ResolutionForm = (props) => {
     let name;
-    const [createResolutionFunction] = useMutation(createResolution)
+    const [createResolutionFunction] = useMutation(createResolution);
 
-    console.log(props);
-
-    submitForm = (e) => {
-        e.preventDefault();
+    submitForm = () => {
         createResolutionFunction({
+            refetchQueries: [
+                "Resolutions"
+            ],
             variables: {
                 name: name.value
             }
         }).then(() => {
-            props.refetch()
+            /*props.refetch()*/
         }).catch(error => {
             console.log(error);
         });
