@@ -22,8 +22,8 @@ export default ResolutionForm = (props) => {
             variables: {
                 name: name.value
             }
-        }).then(() => {
-            /*props.refetch()*/
+        }).then(({ data }) => {
+            console.log(data);
         }).catch(error => {
             console.log(error);
         });

@@ -14,14 +14,14 @@ query Resolutions{
 `;
 
 export default App = () => {
-    const { loading, error, data, refetch } = useQuery(getResolutions);
+    const { loading, error, data } = useQuery(getResolutions);
 
     if (loading) return <span>&nbsp;</span>;
     if (error) return <span>Error :(</span>;
 
     return (
         <div>
-            <ResolutionForm refetch={ refetch }/>
+            <ResolutionForm />
             <ul>
                 { data.resolutions.map(resolution => (
                     <li key={ resolution._id }>{ resolution.name }</li>
