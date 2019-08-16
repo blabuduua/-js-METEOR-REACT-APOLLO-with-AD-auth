@@ -4,9 +4,6 @@ export default {
     Query: {
         resolutions(obj, data, { user }) {
             if(user){
-
-                console.log(user._id);
-
                 return Resolutions.find({
                     userId: user._id
                 }).fetch();

@@ -1,10 +1,7 @@
-# email
-
 type User {
     _id: String
-    email: String
 }
 
-extend type Query {
+type Query {
     user: User
 }

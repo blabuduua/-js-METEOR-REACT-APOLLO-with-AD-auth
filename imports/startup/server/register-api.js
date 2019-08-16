@@ -1,6 +1,7 @@
 import { ApolloServer, gql } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
 import { getUser } from 'meteor/apollo'
+import merge from 'lodash/merge'
 
 import UserSchema from '../../api/users/User.graphql'
 import UserResolvers from '../../api/users/resolvers'
@@ -8,19 +9,17 @@ import UserResolvers from '../../api/users/resolvers'
 import ResolutionSchema from '../../api/resolutions/Resolution.graphql'
 import ResolutionResolvers from '../../api/resolutions/resolvers'
 
-// Ref4433
+// Refresh 1
 
 const typeDefs = [
     UserSchema,
     ResolutionSchema
 ];
 
-const resolvers = {
-    ResolutionSchema,
-    ...UserResolvers
-};
-
-console.log(resolvers);
+const resolvers = merge(
+    UserResolvers,
+    ResolutionResolvers
+);
 
 const server = new ApolloServer({
     typeDefs,

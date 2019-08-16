@@ -1,13 +1,9 @@
-# name
-# createdAt
-# [todoId]
-
 type Resolution {
     _id: String!
     name: String!
 }
 
-type Query {
+extend type Query {
     resolutions: [Resolution]
 }
 

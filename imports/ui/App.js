@@ -13,6 +13,9 @@ query Resolutions{
         _id
         name
     }
+    user{
+        _id
+    }
 }
 `;
 
@@ -24,15 +27,22 @@ export default App = () => {
 
     return (
         <div>
-            <LogoutButton client={ client } />
-            <RegisterForm client={ client } />
-            <LoginForm client={ client } />
-            <ResolutionForm />
-            <ul>
-                { data.resolutions.map(resolution => (
-                    <li key={ resolution._id }>{ resolution.name }</li>
-                )) }
-            </ul>
+            { data.user._id ? (
+                <div>
+                    <LogoutButton client={ client } />
+                    <ResolutionForm />
+                    <ul>
+                        { data.resolutions.map(resolution => (
+                                <li key={ resolution._id }>{ resolution.name }</li>
+                        )) }
+                    </ul>
+                </div>
+                ) : (
+                <div>
+                    <RegisterForm client={client} />
+                    <LoginForm client={client} />
+                </div>
+            )}
         </div>
     )
 };
