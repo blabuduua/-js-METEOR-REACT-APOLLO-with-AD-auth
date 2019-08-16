@@ -2,18 +2,25 @@ import { ApolloServer, gql } from 'apollo-server-express'
 import { WebApp } from 'meteor/webapp'
 import { getUser } from 'meteor/apollo'
 
+import UserSchema from '../../api/users/User.graphql'
+import UserResolvers from '../../api/users/resolvers'
+
 import ResolutionSchema from '../../api/resolutions/Resolution.graphql'
 import ResolutionResolvers from '../../api/resolutions/resolvers'
 
-// Refrer
+// Ref4433
 
 const typeDefs = [
+    UserSchema,
     ResolutionSchema
 ];
 
 const resolvers = {
-    ...ResolutionResolvers
+    ResolutionSchema,
+    ...UserResolvers
 };
+
+console.log(resolvers);
 
 const server = new ApolloServer({
     typeDefs,
