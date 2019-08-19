@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 export default LogoutButton = (props) => {
-    logoutUser = e => {
+    handleLogoutUser = e => {
         e.preventDefault();
 
         Meteor.logout(error => {
@@ -11,6 +11,6 @@ export default LogoutButton = (props) => {
     };
 
     return (
-        <button onClick={ logoutUser }>Выход</button>
+        <button onClick={ handleLogoutUser }>Выход</button>
     )
 }

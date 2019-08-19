@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 export default RegisterForm = (props) => {
     let login;
     let password;
 
-    registerUser = e => {
+    handleRegisterUser = e => {
         e.preventDefault();
 
         Accounts.createUser(
@@ -24,7 +24,7 @@ export default RegisterForm = (props) => {
     };
 
     return (
-        <form onSubmit={ registerUser }>
+        <form onSubmit={ handleRegisterUser }>
             <input type="text" ref={ (input) => login = input } />
             <input type="password" ref={ (input) => password = input } />
             <button type="submit">Регистрация</button>

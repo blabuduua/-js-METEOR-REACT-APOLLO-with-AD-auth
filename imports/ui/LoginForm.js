@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React from 'react'
 
 export default LoginForm = (props) => {
     let login;
     let password;
 
-    loginUser = e => {
+    handleLoginUser = e => {
         e.preventDefault();
 
         Meteor.loginWithPassword(login.value + '@flyuia.com', password.value,
@@ -20,7 +20,7 @@ export default LoginForm = (props) => {
     };
 
     return (
-        <form onSubmit={ loginUser }>
+        <form onSubmit={ handleLoginUser }>
             <input type="text" ref={ (input) => login = input } />
             <input type="password" ref={ (input) => password = input } />
             <button type="submit">Авторизация</button>

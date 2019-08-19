@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { useMutation } from '@apollo/react-hooks';
 import { gql } from "apollo-boost"
 
@@ -16,7 +16,7 @@ export default GoalForm = (props) => {
     let name;
     const [createGoalFunction] = useMutation(createGoal);
 
-    GoalForm = e => {
+    handleGoalForm = e => {
         e.preventDefault();
 
         createGoalFunction({
@@ -38,7 +38,7 @@ export default GoalForm = (props) => {
 
     return (
         <div>
-            <form onSubmit={ GoalForm }>
+            <form onSubmit={ handleGoalForm }>
                 <input type="text" ref={ (input) => name = input } />
                 <button type="submit">Добавить задачу</button>
             </form>

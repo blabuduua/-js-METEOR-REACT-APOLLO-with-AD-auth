@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import { useMutation } from '@apollo/react-hooks';
 import { gql } from "apollo-boost"
 
@@ -14,7 +14,7 @@ export default ResolutionForm = () => {
     let name;
     const [createResolutionFunction] = useMutation(createResolution);
 
-    addResolution = e => {
+    handleAddResolution = e => {
         e.preventDefault();
 
         createResolutionFunction({
@@ -34,7 +34,7 @@ export default ResolutionForm = () => {
     };
 
     return (
-        <form onSubmit={ addResolution }>
+        <form onSubmit={ handleAddResolution }>
             <input type="text" ref={ (input) => name = input } />
             <button type="submit">Добавить</button>
         </form>
