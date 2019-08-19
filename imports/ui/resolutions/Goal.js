@@ -25,7 +25,7 @@ export default Goal = (props) => {
                 goalId: props.goal._id,
             }
         }).then(({ data }) => {
-            console.log(data);
+            /*console.log(data);*/
         }).catch(error => {
             console.log(error);
         });
