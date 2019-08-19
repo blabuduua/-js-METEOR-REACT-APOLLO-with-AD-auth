@@ -9,16 +9,21 @@ import UserResolvers from '../../api/users/resolvers'
 import ResolutionSchema from '../../api/resolutions/Resolution.graphql'
 import ResolutionResolvers from '../../api/resolutions/resolvers'
 
-// Refresh 1
+import GoalSchema from '../../api/goals/Goal.graphql'
+import GoalResolvers from '../../api/goals/resolvers'
+
+// Refresh
 
 const typeDefs = [
     UserSchema,
-    ResolutionSchema
+    ResolutionSchema,
+    GoalSchema
 ];
 
 const resolvers = merge(
     UserResolvers,
-    ResolutionResolvers
+    ResolutionResolvers,
+    GoalResolvers
 );
 
 const server = new ApolloServer({

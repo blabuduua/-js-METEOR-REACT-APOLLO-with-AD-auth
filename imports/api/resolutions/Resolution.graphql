@@ -1,6 +1,8 @@
 type Resolution {
     _id: String!
+    userId: String!
     name: String!
+    goals: [Goal]
 }
 
 extend type Query {

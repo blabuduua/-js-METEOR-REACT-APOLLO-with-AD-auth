@@ -3,18 +3,23 @@ import { useQuery } from '@apollo/react-hooks'
 import { gql } from "apollo-boost"
 
 import ResolutionForm from './ResolutionForm'
+import GoalForm from './GoalForm'
 import RegisterForm from './RegisterForm'
 import LoginForm from './LoginForm'
 import LogoutButton from './LogoutButton'
 
 const getResolutions = gql`
 query Resolutions{
-    resolutions{
-        _id
-        name
-    }
     user{
         _id
+        resolutions {
+            _id
+            name
+            goals {
+                _id
+                name
+            }
+        }
     }
 }
 `;
@@ -32,8 +37,11 @@ export default App = () => {
                     <LogoutButton client={ client } />
                     <ResolutionForm />
                     <ul>
-                        { data.resolutions.map(resolution => (
-                                <li key={ resolution._id }>{ resolution.name }</li>
+                        { data.user.resolutions.map(resolution => (
+                                <li key={ resolution._id }>
+                                    { resolution.name }
+                                    <GoalForm resolutionId={ resolution._id } goals={ resolution.goals } />
+                                </li>
                         )) }
                     </ul>
                 </div>

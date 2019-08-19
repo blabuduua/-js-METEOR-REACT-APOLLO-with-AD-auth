@@ -2,16 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="17a9024f-135a-4a63-857e-6757683649fa" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/resolutions/Resolution.graphql" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/resolutions/Resolution.graphql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/resolutions/resolvers.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/resolutions/resolvers.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/users/User.graphql" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/users/User.graphql" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/users/resolvers.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/users/resolvers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/imports/api/users/users.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/startup/server/register-api.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/startup/server/register-api.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/ui/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/ui/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,7 +64,8 @@
       <workItem from="1565765230289" duration="7255000" />
       <workItem from="1565777401387" duration="6697000" />
       <workItem from="1565849183985" duration="20560000" />
-      <workItem from="1565935691087" duration="6711000" />
+      <workItem from="1565935691087" duration="17506000" />
+      <workItem from="1566195613919" duration="2871000" />
     </task>
     <servers />
   </component>
