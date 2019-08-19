@@ -34,6 +34,8 @@ export default App = () => {
 
     return (
         <div>
+            { !data.user._id && <RegisterForm client={client} /> }
+
             { data.user._id ? (
                 <div>
                     <LogoutButton client={ client } />
@@ -53,7 +55,6 @@ export default App = () => {
                 </div>
                 ) : (
                 <div>
-                    <RegisterForm client={client} />
                     <LoginForm client={client} />
                 </div>
             )}
