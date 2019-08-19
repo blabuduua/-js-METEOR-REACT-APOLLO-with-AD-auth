@@ -28,6 +28,7 @@ export default ResolutionForm = () => {
             /*console.log(data);*/
         }).catch(error => {
             console.log(error);
+             // Unauthorized error.message for form validation and API control
         });
 
         name.value = '';

@@ -29,13 +29,17 @@ export default {
     },
     Mutation: {
         createResolution(obj, { name }, { user }) {
-            const resolutionId = Resolutions.insert({
-                name,
-                userId: user._id,
-                completed: false
-            });
+            if(user){
+                const resolutionId = Resolutions.insert({
+                    name,
+                    userId: user._id,
+                    completed: false
+                });
 
-            return Resolutions.findOne(resolutionId)
+                return Resolutions.findOne(resolutionId)
+            }
+
+            throw new Error("Unauthorized")
         }
     }
 };
