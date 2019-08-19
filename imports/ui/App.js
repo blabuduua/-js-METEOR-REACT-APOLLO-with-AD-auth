@@ -40,15 +40,15 @@ export default App = () => {
                     <ResolutionForm />
                     <ul>
                         { data.user.resolutions.map(resolution => (
-                                <li key={ resolution._id }>
-                                    <span style= {{
-                                        textDecoration: resolution.completed ? 'line-through' : 'none'
-                                    }}>
-                                        { resolution.name }
-                                    </span>
-                                    <GoalForm resolutionId={ resolution._id } goals={ resolution.goals } />
-                                </li>
-                        )) }
+                            <li key={ resolution._id }>
+                                <span style= {{
+                                    textDecoration: resolution.completed ? 'line-through' : 'none'
+                                }}>
+                                    { resolution.name }
+                                </span>
+                                <GoalForm resolutionId={ resolution._id } goals={ resolution.goals } />
+                            </li>
+                        ))}
                     </ul>
                 </div>
                 ) : (
