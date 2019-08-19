@@ -38,8 +38,12 @@ export default Goal = (props) => {
                 onChange={ handleToggleGoal }
                 checked={ props.goal.completed }
             />
-
-            { props.goal.name }
+                
+            <span style= {{
+                textDecoration: props.goal.completed ? 'line-through' : 'none'
+            }}>
+                { props.goal.name }
+            </span>
         </li>
     )
 }
