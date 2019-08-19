@@ -3,6 +3,7 @@ type Resolution {
     userId: String!
     name: String!
     goals: [Goal]
+    completed: Boolean!
 }
 
 extend type Query {

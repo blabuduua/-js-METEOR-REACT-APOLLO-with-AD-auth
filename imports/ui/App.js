@@ -15,6 +15,7 @@ query Resolutions{
         resolutions {
             _id
             name
+            completed
             goals {
                 _id
                 name
@@ -40,7 +41,11 @@ export default App = () => {
                     <ul>
                         { data.user.resolutions.map(resolution => (
                                 <li key={ resolution._id }>
-                                    { resolution.name }
+                                    <span style= {{
+                                        textDecoration: resolution.completed ? 'line-through' : 'none'
+                                    }}>
+                                        { resolution.name }
+                                    </span>
                                     <GoalForm resolutionId={ resolution._id } goals={ resolution.goals } />
                                 </li>
                         )) }
