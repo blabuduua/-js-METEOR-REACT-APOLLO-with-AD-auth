@@ -17,6 +17,8 @@ export default LoginForm = (props) => {
     handleLoginUser = e => {
         e.preventDefault();
 
+        console.log(login.value);
+
         authenticateFunction({
            variables: {
                login: login.value,
