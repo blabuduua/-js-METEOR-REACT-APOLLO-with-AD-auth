@@ -10,6 +10,6 @@ extend type Query {
     resolutions: [Resolution]
 }
 
-type Mutation {
+extend type Mutation {
     createResolution(name: String!): Resolution
 }

@@ -12,7 +12,7 @@ import ResolutionResolvers from '../../api/resolutions/resolvers'
 import GoalSchema from '../../api/goals/Goal.graphql'
 import GoalResolvers from '../../api/goals/resolvers'
 
-// Refresh 213
+// Refresh
 
 const typeDefs = [
     UserSchema,
