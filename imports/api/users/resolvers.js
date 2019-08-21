@@ -2,7 +2,7 @@ import Goals from "../goals/goals";
 import Resolutions from "../resolutions/resolutions";
 import Authenticate from "../authenticate/authenticate";
 
-const ActiveDirectory = require('activedirectory2');
+const AD = require('activedirectory2').promiseWrapper;
 
 // ДЛЯ ПРОВЕРКИ КАКИЕ УРОВНИ ДОСТУПА БЫЛИ ПРОЙДЕНЫ
 const checkPassBlockTrue = (block) => {
@@ -65,12 +65,6 @@ const checkAllPasses = (user, admin, block) => {
     }
 };
 
-const constAccessLevel = 0;
-
-const authDone = (accessLevel, constAccessLevel) => {
-    return accessLevel
-};
-
 export default {
     Query: {
         user(obj, args, { user }) {
@@ -83,7 +77,7 @@ export default {
         goals: user => Goals.find({userId: user._id}).fetch()
     },
     Mutation: {
-        authenticate(obj, { login, password }) {
+        async authenticate(obj, { login, password }) {
             if(login !== '' && password !== ''){
 
                 const authenticateData = Authenticate.find({}).fetch();
@@ -97,10 +91,6 @@ export default {
                     let admin = false;
                     let user = false;
                     let block = false;
-
-                    let admin_async = false;
-                    let user_async = false;
-                    let block_async = false;
 
                     // ДЛЯ ХРАНЕНИЯ МАССИВОВ ИЛИ СТРОК ГРУПП ДОСТУПОВ ИЗ БАЗЫ ДАННЫХ
                     let exploaded_userGroupsNames;
@@ -168,17 +158,11 @@ export default {
                             password: password
                         };
 
-                        const ad = new ActiveDirectory(config);
+                        const ad = new AD(config);
 
-                        ad.authenticate(login + "@flyuia.com", password, function(err, auth) {
-
-                            if (err) {
-                                console.log('ERROR: ' + JSON.stringify(err));
-                            }
-                            if (auth) {
+                        return await ad.authenticate(login + "@flyuia.com", password).then((auth) => {
+                            if(auth) {
                                 console.log('Authenticated!');
-
-                                // =======================================================================================================
 
                                 // ДЛЯ ПОИСКА ПОЛЬЗОВАТЕЛЯ В УВОЛЕННЫХ
                                 if(Array.isArray(exploaded_forbiddenDN)){
@@ -195,32 +179,28 @@ export default {
                                                 password: password
                                             };
 
-                                            const forbidden_ad = new ActiveDirectory(forbidden_config);
+                                            const forbidden_ad = new AD(forbidden_config);
 
-                                            forbidden_ad.authenticate(login + "@flyuia.com", password, function(err, auth) {
-                                                if (err) {
-                                                    // return "Login or password is invalid!"
-                                                    throw new Error("exploaded_forbiddenDN auth try ERROR!")
-                                                }
+                                            return forbidden_ad.authenticate(login + "@flyuia.com", password).then((auth) => {
                                                 if (auth) {
                                                     console.log('Authenticated exploaded_forbiddenDN!');
 
                                                     if(authenticateDataLength === i){
-                                                        // return "Authentication BLOCKED!"
-                                                        throw new Error("Authentication BLOCKED!")
+                                                        return "111"
                                                     }
-                                                }
-                                                else {
+                                                }else{
                                                     console.log('Authentication failed exploaded_forbiddenDN!');
 
                                                     admin = false;
                                                     user = false;
                                                     block = false;
-
-                                                    admin_async = false;
-                                                    user_async = false;
-                                                    block_async = false;
                                                 }
+                                            }).catch(() => {
+                                                console.log('Authentication failed exploaded_forbiddenDN!');
+
+                                                admin = false;
+                                                user = false;
+                                                block = false;
                                             });
                                         }
                                     }
@@ -235,275 +215,38 @@ export default {
                                             password: password
                                         };
 
-                                        const forbidden_ad = new ActiveDirectory(forbidden_config);
+                                        const forbidden_ad = new AD(forbidden_config);
 
-                                        forbidden_ad.authenticate(login + "@flyuia.com", password, function(err, auth) {
-                                            if (err) {
-                                                // return "Login or password is invalid!"
-                                                throw new Error("exploaded_forbiddenDN auth try ERROR!")
-                                            }
+                                        return forbidden_ad.authenticate(login + "@flyuia.com", password).then((auth) => {
                                             if (auth) {
                                                 console.log('Authenticated exploaded_forbiddenDN!');
 
                                                 if(authenticateDataLength === i){
-                                                    // return "Authentication BLOCKED!"
-                                                    throw new Error("Authentication BLOCKED!")
+                                                    return "111" // AUTH IS BLOCKED
                                                 }
-                                            }
-                                            else {
+                                            }else{
                                                 console.log('Authentication failed exploaded_forbiddenDN!');
 
                                                 admin = false;
                                                 user = false;
                                                 block = false;
-
-                                                admin_async = false;
-                                                user_async = false;
-                                                block_async = false;
                                             }
+                                        }).catch((error) => {
+                                            console.log('Authentication failed exploaded_forbiddenDN! ' + error);
+
+                                            admin = false;
+                                            user = false;
+                                            block = false;
                                         });
                                     }
                                 }
 
-                                // =======================================================================================================
-
+                                // ДЛЯ ПРОВЕРКИ НАЛИЧИЯ ГРУПП
                                 if(exploaded_userGroupsNames === '' && exploaded_adminGroupsNames === '' && exploaded_blockGroupsNames === ''){
                                     throw new Error("Authenticate data is required, all groups is empty!")
                                 }
 
-                                // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
-                                if(Array.isArray(exploaded_userGroupsNames)){
-
-                                    let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
-
-                                    for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
-                                        if(exploaded_userGroupsNames[t] !== '' && user !== true){
-                                            ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t], function(err, isMember) {
-                                                if (err) {
-                                                    console.log('ERROR: ' +JSON.stringify(err));
-                                                    return;
-                                                }
-
-                                                user = isMember;
-                                                user_async = true;
-
-                                                console.log(login + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
-
-                                                if(user_async === true && admin_async === true && block_async === true){
-                                                    console.log('all async done!');
-
-                                                    switch(checkAllPasses(user, admin, block)) {
-                                                        case 1:
-                                                            if(authenticateDataLength === i){
-                                                                // return "Block Group!"
-                                                                throw new Error("Block Group!")
-                                                            }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
-
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
-                                                            }
-                                                            break;
-                                                        case 2:
-                                                            if(authenticateDataLength === i){
-                                                                // return "All miss!"
-                                                                throw new Error("All miss!")
-                                                            }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
-
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
-                                                            }
-                                                            break;
-                                                        case 3:
-                                                            console.log('HEREZERE');
-                                                            return 3;
-                                                            break;
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                }else{
-                                    if(exploaded_userGroupsNames !== ''){
-
-                                        console.log('string userGroup');
-
-                                        ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames, function(err, isMember) {
-                                            if (err) {
-                                                console.log('ERROR: ' +JSON.stringify(err));
-                                                return;
-                                            }
-
-                                            user = isMember;
-                                            user_async = true;
-
-                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
-
-                                            if(user_async === true && admin_async === true && block_async === true){
-                                                console.log('all async done!');
-
-                                                switch(checkAllPasses(user, admin, block)) {
-                                                    case 1:
-                                                        if(authenticateDataLength === i){
-                                                            // return "Block Group!"
-                                                            throw new Error("Block Group!")
-                                                        }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
-
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
-                                                        }
-                                                        break;
-                                                    case 2:
-                                                        if(authenticateDataLength === i){
-                                                            // return "All miss!"
-                                                            throw new Error("All miss!")
-                                                        }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
-
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
-                                                        }
-                                                        break;
-                                                    case 3:
-                                                        console.log('HEREZERE');
-                                                        return 3;
-                                                        break;
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-
-                                // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
-                                if(Array.isArray(exploaded_adminGroupsNames)){
-
-                                    let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
-
-                                    for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
-
-                                        console.log(exploaded_adminGroupsNames[r]);
-
-                                        if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
-                                            ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames[r], function(err, isMember) {
-                                                if (err) {
-                                                    console.log('ERROR: ' +JSON.stringify(err));
-                                                    return;
-                                                }
-
-                                                admin = isMember;
-                                                admin_async = true;
-
-                                                console.log(login + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
-
-                                                if(user_async === true && admin_async === true && block_async === true){
-                                                    console.log('all async done!');
-
-                                                    switch(checkAllPasses(user, admin, block)) {
-                                                        case 1:
-                                                            if(authenticateDataLength === i){
-                                                                // return "Block Group!"
-                                                                throw new Error("Block Group!")
-                                                            }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
-
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
-                                                            }
-                                                            break;
-                                                        case 2:
-                                                            if(authenticateDataLength === i){
-                                                                // return "All miss!"
-                                                                throw new Error("All miss!")
-                                                            }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
-
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
-                                                            }
-                                                            break;
-                                                        case 3:
-                                                            console.log('HEREZERE');
-                                                            return 3;
-                                                            break;
-                                                    }
-                                                }
-                                            });
-                                        }
-                                    }
-                                }else{
-                                    if(exploaded_adminGroupsNames !== ''){
-                                        ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames, function(err, isMember) {
-                                            if (err) {
-                                                console.log('ERROR: ' +JSON.stringify(err));
-                                                return;
-                                            }
-
-                                            admin = isMember;
-                                            admin_async = true;
-
-                                            console.log(login + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
-
-                                            if(user_async === true && admin_async === true && block_async === true){
-                                                console.log('all async done!');
-
-                                                switch(checkAllPasses(user, admin, block)) {
-                                                    case 1:
-                                                        if(authenticateDataLength === i){
-                                                            // return "Block Group!"
-                                                            throw new Error("Block Group!")
-                                                        }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
-
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
-                                                        }
-                                                        break;
-                                                    case 2:
-                                                        if(authenticateDataLength === i){
-                                                            // return "All miss!"
-                                                            throw new Error("All miss!")
-                                                        }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
-
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
-                                                        }
-                                                        break;
-                                                    case 3:
-                                                        console.log('HEREZERE');
-                                                        return 3;
-                                                        break;
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
+// =========================================================================================================================================
 
                                 // ДЛЯ БЫСТРОГО ОТБОЙНИКА ПРОВЕРЯЕМ КОНТР-ГРУППЫ
                                 if(Array.isArray(exploaded_blockGroupsNames)){
@@ -515,135 +258,445 @@ export default {
                                         console.log(exploaded_blockGroupsNames[w]);
 
                                         if(exploaded_blockGroupsNames[w] !== '' && block !== true){
-                                            ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames[w], function(err, isMember) {
-                                                if (err) {
-                                                    console.log('ERROR: ' +JSON.stringify(err));
-                                                    return;
-                                                }
-
+                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames[w]).then((isMember) => {
                                                 block = isMember;
-                                                block_async = true;
 
-                                                console.log(login + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames[w] + ': ' + isMember);
+                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames[w] + ': ' + isMember);
 
-                                                if(user_async === true && admin_async === true && block_async === true){
-                                                    console.log('all async done!');
+                                                // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
+                                                if(Array.isArray(exploaded_adminGroupsNames)){
 
-                                                    switch(checkAllPasses(user, admin, block)) {
-                                                        case 1:
-                                                            if(authenticateDataLength === i){
-                                                                // return "Block Group!"
-                                                                throw new Error("Block Group!")
+                                                    let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
+
+                                                    for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
+
+                                                        console.log(exploaded_adminGroupsNames[r]);
+                                                        console.log(async);
+
+                                                        if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
+                                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames[r]).then((isMember) => {
+                                                                admin = isMember;
+
+                                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
+
+                                                                // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                                if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                                    let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                                    for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                                        if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                                user = isMember;
+
+                                                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                                switch(checkAllPasses(user, admin, block)) {
+                                                                                    case 1:
+                                                                                        if(authenticateDataLength === i){
+                                                                                            return "1111" // Block Group!
+                                                                                        }else{
+                                                                                            admin = false;
+                                                                                            user = false;
+                                                                                            block = false;
+                                                                                        }
+                                                                                        break;
+                                                                                    case 2:
+                                                                                        if(authenticateDataLength === i){
+                                                                                            return "11111" // All miss!
+                                                                                        }else{
+                                                                                            admin = false;
+                                                                                            user = false;
+                                                                                            block = false;
+                                                                                        }
+                                                                                        break;
+                                                                                    case 3:
+                                                                                        console.log('HEREZERE');
+                                                                                        return '3';
+                                                                                        break;
+                                                                                }
+                                                                            }).catch((error) => {
+                                                                                console.log('ERROR! ' + error);
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }else{
+                                                                    if(exploaded_userGroupsNames !== '' && user !== true){
+
+                                                                        console.log('string userGroup');
+
+                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                            user = isMember;
+
+                                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                            switch(checkAllPasses(user, admin, block)) {
+                                                                                case 1:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "1111" // Block Group!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 2:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "11111" // All miss!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 3:
+                                                                                    console.log('HEREZERE');
+                                                                                    return '3';
+                                                                                    break;
+                                                                            }
+                                                                        }).catch((error) => {
+                                                                            console.log('ERROR! ' + error);
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }).catch((error) => {
+                                                                console.log('ERROR! ' + error);
+                                                            });
+                                                        }
+                                                    }
+                                                }else{
+                                                    if(exploaded_adminGroupsNames !== '' && admin !== true){
+                                                        console.log('string adminGroup');
+
+                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames).then((isMember) => {
+                                                            admin = isMember;
+
+                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
+
+                                                            // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                            if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                                let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                                for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                                    if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                            user = isMember;
+
+                                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                            switch(checkAllPasses(user, admin, block)) {
+                                                                                case 1:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "1111" // Block Group!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 2:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "11111" // All miss!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 3:
+                                                                                    console.log('HEREZERE');
+                                                                                    return '3';
+                                                                                    break;
+                                                                            }
+                                                                        }).catch((error) => {
+                                                                            console.log('ERROR! ' + error);
+                                                                        });
+                                                                    }
+                                                                }
                                                             }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
+                                                                if(exploaded_userGroupsNames !== '' && user !== true){
 
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
-                                                            }
-                                                            break;
-                                                        case 2:
-                                                            if(authenticateDataLength === i){
-                                                                // return "All miss!"
-                                                                throw new Error("All miss!")
-                                                            }else{
-                                                                admin = false;
-                                                                user = false;
-                                                                block = false;
+                                                                    console.log('string userGroup');
 
-                                                                admin_async = false;
-                                                                user_async = false;
-                                                                block_async = false;
+                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                        user = isMember;
+
+                                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                        switch(checkAllPasses(user, admin, block)) {
+                                                                            case 1:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "1111" // Block Group!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 2:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "11111" // All miss!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 3:
+                                                                                console.log('HEREZERE');
+                                                                                return '3';
+                                                                                break;
+                                                                        }
+                                                                    }).catch((error) => {
+                                                                        console.log('ERROR! ' + error);
+                                                                    });
+                                                                }
                                                             }
-                                                            break;
-                                                        case 3:
-                                                            console.log('HEREZERE');
-                                                            return 3;
-                                                            break;
+                                                        }).catch((error) => {
+                                                            console.log('ERROR! ' + error);
+                                                        });
                                                     }
                                                 }
+                                            }).catch((error) => {
+                                                console.log('ERROR! ' + error);
                                             });
                                         }
                                     }
                                 }else{
-                                    if(exploaded_blockGroupsNames !== ''){
-                                        ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames, function(err, isMember) {
-                                            if (err) {
-                                                console.log('ERROR: ' +JSON.stringify(err));
-                                                return;
-                                            }
+                                    if(exploaded_blockGroupsNames !== '' && block !== true){
+                                        console.log('string blockGroup');
 
+                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames).then((isMember) => {
                                             block = isMember;
-                                            block_async = true;
 
-                                            console.log(login + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames + ': ' + isMember);
+                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames + ': ' + isMember);
 
-                                            if(user_async === true && admin_async === true && block_async === true){
-                                                console.log('all async done!');
+                                            // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
+                                            if(Array.isArray(exploaded_adminGroupsNames)){
 
-                                                switch(checkAllPasses(user, admin, block)) {
-                                                    case 1:
-                                                        if(authenticateDataLength === i){
-                                                            // return "Block Group!"
-                                                            throw new Error("Block Group!")
+                                                let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
+
+                                                for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
+
+                                                    console.log(exploaded_adminGroupsNames[r]);
+                                                    console.log(async);
+
+                                                    if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
+                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames[r]).then((isMember) => {
+                                                            admin = isMember;
+
+                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
+
+                                                            // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                            if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                                let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                                for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                                    if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                            user = isMember;
+
+                                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                            switch(checkAllPasses(user, admin, block)) {
+                                                                                case 1:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "1111" // Block Group!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 2:
+                                                                                    if(authenticateDataLength === i){
+                                                                                        return "11111" // All miss!
+                                                                                    }else{
+                                                                                        admin = false;
+                                                                                        user = false;
+                                                                                        block = false;
+                                                                                    }
+                                                                                    break;
+                                                                                case 3:
+                                                                                    console.log('HEREZERE');
+                                                                                    return '3';
+                                                                                    break;
+                                                                            }
+                                                                        }).catch((error) => {
+                                                                            console.log('ERROR! ' + error);
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }else{
+                                                                if(exploaded_userGroupsNames !== '' && user !== true){
+
+                                                                    console.log('string userGroup');
+
+                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                        user = isMember;
+
+                                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                        switch(checkAllPasses(user, admin, block)) {
+                                                                            case 1:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "1111" // Block Group!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 2:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "11111" // All miss!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 3:
+                                                                                console.log('HEREZERE');
+                                                                                return '3';
+                                                                                break;
+                                                                        }
+                                                                    }).catch((error) => {
+                                                                        console.log('ERROR! ' + error);
+                                                                    });
+                                                                }
+                                                            }
+                                                        }).catch((error) => {
+                                                            console.log('ERROR! ' + error);
+                                                        });
+                                                    }
+                                                }
+                                            }else{
+                                                if(exploaded_adminGroupsNames !== '' && admin !== true){
+                                                    console.log('string adminGroup');
+
+                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames).then((isMember) => {
+                                                        admin = isMember;
+
+                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
+
+                                                        // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                        if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                            let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                            for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                                if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                        user = isMember;
+
+                                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                        switch(checkAllPasses(user, admin, block)) {
+                                                                            case 1:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "1111" // Block Group!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 2:
+                                                                                if(authenticateDataLength === i){
+                                                                                    return "11111" // All miss!
+                                                                                }else{
+                                                                                    admin = false;
+                                                                                    user = false;
+                                                                                    block = false;
+                                                                                }
+                                                                                break;
+                                                                            case 3:
+                                                                                console.log('HEREZERE');
+                                                                                return '3';
+                                                                                break;
+                                                                        }
+                                                                    }).catch((error) => {
+                                                                        console.log('ERROR! ' + error);
+                                                                    });
+                                                                }
+                                                            }
                                                         }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
+                                                            if(exploaded_userGroupsNames !== '' && user !== true){
 
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
-                                                        }
-                                                        break;
-                                                    case 2:
-                                                        if(authenticateDataLength === i){
-                                                            // return "All miss!"
-                                                            throw new Error("All miss!")
-                                                        }else{
-                                                            admin = false;
-                                                            user = false;
-                                                            block = false;
+                                                                console.log('string userGroup');
 
-                                                            admin_async = false;
-                                                            user_async = false;
-                                                            block_async = false;
+                                                                return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                    user = isMember;
+
+                                                                    console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                    switch(checkAllPasses(user, admin, block)) {
+                                                                        case 1:
+                                                                            if(authenticateDataLength === i){
+                                                                                return "1111" // Block Group!
+                                                                            }else{
+                                                                                admin = false;
+                                                                                user = false;
+                                                                                block = false;
+                                                                            }
+                                                                            break;
+                                                                        case 2:
+                                                                            if(authenticateDataLength === i){
+                                                                                return "11111" // All miss!
+                                                                            }else{
+                                                                                admin = false;
+                                                                                user = false;
+                                                                                block = false;
+                                                                            }
+                                                                            break;
+                                                                        case 3:
+                                                                            console.log('HEREZERE');
+                                                                            return '3';
+                                                                            break;
+                                                                    }
+                                                                }).catch((error) => {
+                                                                    console.log('ERROR! ' + error);
+                                                                });
+                                                            }
                                                         }
-                                                        break;
-                                                    case 3:
-                                                        console.log('HEREZERE');
-                                                        return 3;
-                                                        break;
+                                                    }).catch((error) => {
+                                                        console.log('ERROR! ' + error);
+                                                    });
                                                 }
                                             }
+                                        }).catch((error) => {
+                                            console.log('ERROR! ' + error);
                                         });
                                     }
                                 }
 
-                                // =======================================================================================================
+// =========================================================================================================================================
 
-                            }
-                            else {
+                            }else{
                                 console.log('Authentication failed!');
 
                                 if(authenticateDataLength === i){
-                                    // return "Login or password is invalid!"
-                                    throw new Error("Login or password is invalid!")
+                                    return '11'; // AUTH IS FAILED / CLIENT PROBLEM
                                 }else{
                                     admin = false;
                                     user = false;
                                     block = false;
-
-                                    admin_async = false;
-                                    user_async = false;
-                                    block_async = false;
                                 }
                             }
-                        });
+                        }).catch((error) => {
+                            console.log('Authentication failed! ' + error);
 
-                        console.log('123');
+                            if(authenticateDataLength === i){
+                                return '1'; // AUTH IS FAILED / SERVER OR CLIENT PROBLEM
+                            }else{
+                                admin = false;
+                                user = false;
+                                block = false;
+                            }
+                        });
                     }
                 }else{
                     // return "Authenticate data is required!"
