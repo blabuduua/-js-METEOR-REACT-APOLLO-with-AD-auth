@@ -65,6 +65,25 @@ const checkAllPasses = (user, admin, block) => {
     }
 };
 
+const totalCheck = (user, admin, block, authenticateDataLength, i) => {
+    switch(checkAllPasses(user, admin, block)) {
+        case 1:
+            if(authenticateDataLength === i){
+                return "1111" // Block Group!
+            }
+            break;
+        case 2:
+            if(authenticateDataLength === i){
+                return "11111" // All miss!
+            }
+            break;
+        case 3:
+            console.log('HEREZERE');
+            return '3';
+            break;
+    }
+};
+
 export default {
     Query: {
         user(obj, args, { user }) {
@@ -291,30 +310,7 @@ export default {
 
                                                                                 console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                                switch(checkAllPasses(user, admin, block)) {
-                                                                                    case 1:
-                                                                                        if(authenticateDataLength === i){
-                                                                                            return "1111" // Block Group!
-                                                                                        }else{
-                                                                                            admin = false;
-                                                                                            user = false;
-                                                                                            block = false;
-                                                                                        }
-                                                                                        break;
-                                                                                    case 2:
-                                                                                        if(authenticateDataLength === i){
-                                                                                            return "11111" // All miss!
-                                                                                        }else{
-                                                                                            admin = false;
-                                                                                            user = false;
-                                                                                            block = false;
-                                                                                        }
-                                                                                        break;
-                                                                                    case 3:
-                                                                                        console.log('HEREZERE');
-                                                                                        return '3';
-                                                                                        break;
-                                                                                }
+                                                                                return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                             }).catch((error) => {
                                                                                 console.log('ERROR! ' + error);
                                                                             });
@@ -330,30 +326,7 @@ export default {
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                            switch(checkAllPasses(user, admin, block)) {
-                                                                                case 1:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "1111" // Block Group!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 2:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "11111" // All miss!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 3:
-                                                                                    console.log('HEREZERE');
-                                                                                    return '3';
-                                                                                    break;
-                                                                            }
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -385,30 +358,7 @@ export default {
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                            switch(checkAllPasses(user, admin, block)) {
-                                                                                case 1:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "1111" // Block Group!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 2:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "11111" // All miss!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 3:
-                                                                                    console.log('HEREZERE');
-                                                                                    return '3';
-                                                                                    break;
-                                                                            }
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -424,30 +374,7 @@ export default {
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                        switch(checkAllPasses(user, admin, block)) {
-                                                                            case 1:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "1111" // Block Group!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 2:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "11111" // All miss!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 3:
-                                                                                console.log('HEREZERE');
-                                                                                return '3';
-                                                                                break;
-                                                                        }
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
@@ -500,30 +427,7 @@ export default {
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                            switch(checkAllPasses(user, admin, block)) {
-                                                                                case 1:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "1111" // Block Group!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 2:
-                                                                                    if(authenticateDataLength === i){
-                                                                                        return "11111" // All miss!
-                                                                                    }else{
-                                                                                        admin = false;
-                                                                                        user = false;
-                                                                                        block = false;
-                                                                                    }
-                                                                                    break;
-                                                                                case 3:
-                                                                                    console.log('HEREZERE');
-                                                                                    return '3';
-                                                                                    break;
-                                                                            }
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -539,30 +443,7 @@ export default {
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                        switch(checkAllPasses(user, admin, block)) {
-                                                                            case 1:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "1111" // Block Group!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 2:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "11111" // All miss!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 3:
-                                                                                console.log('HEREZERE');
-                                                                                return '3';
-                                                                                break;
-                                                                        }
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
@@ -594,30 +475,7 @@ export default {
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                        switch(checkAllPasses(user, admin, block)) {
-                                                                            case 1:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "1111" // Block Group!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 2:
-                                                                                if(authenticateDataLength === i){
-                                                                                    return "11111" // All miss!
-                                                                                }else{
-                                                                                    admin = false;
-                                                                                    user = false;
-                                                                                    block = false;
-                                                                                }
-                                                                                break;
-                                                                            case 3:
-                                                                                console.log('HEREZERE');
-                                                                                return '3';
-                                                                                break;
-                                                                        }
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
@@ -633,30 +491,7 @@ export default {
 
                                                                     console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                    switch(checkAllPasses(user, admin, block)) {
-                                                                        case 1:
-                                                                            if(authenticateDataLength === i){
-                                                                                return "1111" // Block Group!
-                                                                            }else{
-                                                                                admin = false;
-                                                                                user = false;
-                                                                                block = false;
-                                                                            }
-                                                                            break;
-                                                                        case 2:
-                                                                            if(authenticateDataLength === i){
-                                                                                return "11111" // All miss!
-                                                                            }else{
-                                                                                admin = false;
-                                                                                user = false;
-                                                                                block = false;
-                                                                            }
-                                                                            break;
-                                                                        case 3:
-                                                                            console.log('HEREZERE');
-                                                                            return '3';
-                                                                            break;
-                                                                    }
+                                                                    return totalCheck(user, admin, block, authenticateDataLength, i);
                                                                 }).catch((error) => {
                                                                     console.log('ERROR! ' + error);
                                                                 });
