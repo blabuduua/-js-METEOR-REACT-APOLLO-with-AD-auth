@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/authenticate/authenticate.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/authenticate/authenticate.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/imports/api/users/resolvers.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/api/users/resolvers.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/imports/ui/LoginForm.js" beforeDir="false" afterPath="$PROJECT_DIR$/imports/ui/LoginForm.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -62,7 +61,7 @@
       <workItem from="1565849183985" duration="20560000" />
       <workItem from="1565935691087" duration="17506000" />
       <workItem from="1566195613919" duration="11204000" />
-      <workItem from="1566281696651" duration="19500000" />
+      <workItem from="1566281696651" duration="29148000" />
     </task>
     <servers />
   </component>
