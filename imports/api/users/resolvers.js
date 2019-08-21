@@ -25,17 +25,9 @@ const checkPassUserAdminBlockFalse = (user, admin, block) => {
     return false;
 };
 
-const checkPassUserAdminTrue = (user, admin, login, password) => {
+const checkPassUserAdminTrue = (user, admin) => {
     if(user === true && admin === true){
-        // ДЛЯ НАЗНАЧЕНИЯ ДОСТУПА АДМИНА, ОБНОВЛЕНИЯ ИНФЫ И СОЗДАНИЯ НОВОГО АКК АДМИНА
-
-        Accounts.createUser(
-        {
-            email: login + '@flyuia.com',
-            password: password
-        }, Meteor.bindEnvironment((error, result) => {
-                console.log(result);
-        }));
+        console.log('Authentication DONE! user === true && admin === true');
 
         return true;
     }
@@ -59,7 +51,7 @@ const checkPassAdminTrue = (admin) => {
     return true;
 };
 
-const checkAllPasses = (user, admin, block, login, password) => {
+const checkAllPasses = (user, admin, block) => {
     if(checkPassBlockTrue(block)){
         return 1;
     }
@@ -68,9 +60,15 @@ const checkAllPasses = (user, admin, block, login, password) => {
         return 2;
     }
 
-    if(checkPassUserAdminTrue(user, admin, login, password)){
+    if(checkPassUserAdminTrue(user, admin)){
         return 3;
     }
+};
+
+const constAccessLevel = 0;
+
+const authDone = (accessLevel, constAccessLevel) => {
+    return accessLevel
 };
 
 export default {
@@ -173,13 +171,14 @@ export default {
                         const ad = new ActiveDirectory(config);
 
                         ad.authenticate(login + "@flyuia.com", password, function(err, auth) {
+
                             if (err) {
                                 console.log('ERROR: ' + JSON.stringify(err));
                             }
                             if (auth) {
                                 console.log('Authenticated!');
 
-    // =======================================================================================================
+                                // =======================================================================================================
 
                                 // ДЛЯ ПОИСКА ПОЛЬЗОВАТЕЛЯ В УВОЛЕННЫХ
                                 if(Array.isArray(exploaded_forbiddenDN)){
@@ -266,7 +265,7 @@ export default {
                                     }
                                 }
 
-    // =======================================================================================================
+                                // =======================================================================================================
 
                                 if(exploaded_userGroupsNames === '' && exploaded_adminGroupsNames === '' && exploaded_blockGroupsNames === ''){
                                     throw new Error("Authenticate data is required, all groups is empty!")
@@ -293,7 +292,7 @@ export default {
                                                 if(user_async === true && admin_async === true && block_async === true){
                                                     console.log('all async done!');
 
-                                                    switch(checkAllPasses(user, admin, block, login, password)) {
+                                                    switch(checkAllPasses(user, admin, block)) {
                                                         case 1:
                                                             if(authenticateDataLength === i){
                                                                 // return "Block Group!"
@@ -323,8 +322,8 @@ export default {
                                                             }
                                                             break;
                                                         case 3:
-                                                            // ALL OK, RETURN TO REACT
-                                                            console.log('Auth DONE! Admin and User');
+                                                            console.log('HEREZERE');
+                                                            return 3;
                                                             break;
                                                     }
                                                 }
@@ -350,7 +349,7 @@ export default {
                                             if(user_async === true && admin_async === true && block_async === true){
                                                 console.log('all async done!');
 
-                                                switch(checkAllPasses(user, admin, block, login, password)) {
+                                                switch(checkAllPasses(user, admin, block)) {
                                                     case 1:
                                                         if(authenticateDataLength === i){
                                                             // return "Block Group!"
@@ -380,8 +379,8 @@ export default {
                                                         }
                                                         break;
                                                     case 3:
-                                                        // ALL OK, RETURN TO REACT
-                                                        console.log('Auth DONE! Admin and User');
+                                                        console.log('HEREZERE');
+                                                        return 3;
                                                         break;
                                                 }
                                             }
@@ -413,7 +412,7 @@ export default {
                                                 if(user_async === true && admin_async === true && block_async === true){
                                                     console.log('all async done!');
 
-                                                    switch(checkAllPasses(user, admin, block, login, password)) {
+                                                    switch(checkAllPasses(user, admin, block)) {
                                                         case 1:
                                                             if(authenticateDataLength === i){
                                                                 // return "Block Group!"
@@ -443,8 +442,8 @@ export default {
                                                             }
                                                             break;
                                                         case 3:
-                                                            // ALL OK, RETURN TO REACT
-                                                            console.log('Auth DONE! Admin and User');
+                                                            console.log('HEREZERE');
+                                                            return 3;
                                                             break;
                                                     }
                                                 }
@@ -467,7 +466,7 @@ export default {
                                             if(user_async === true && admin_async === true && block_async === true){
                                                 console.log('all async done!');
 
-                                                switch(checkAllPasses(user, admin, block, login, password)) {
+                                                switch(checkAllPasses(user, admin, block)) {
                                                     case 1:
                                                         if(authenticateDataLength === i){
                                                             // return "Block Group!"
@@ -497,8 +496,8 @@ export default {
                                                         }
                                                         break;
                                                     case 3:
-                                                        // ALL OK, RETURN TO REACT
-                                                        console.log('Auth DONE! Admin and User');
+                                                        console.log('HEREZERE');
+                                                        return 3;
                                                         break;
                                                 }
                                             }
@@ -530,7 +529,7 @@ export default {
                                                 if(user_async === true && admin_async === true && block_async === true){
                                                     console.log('all async done!');
 
-                                                    switch(checkAllPasses(user, admin, block, login, password)) {
+                                                    switch(checkAllPasses(user, admin, block)) {
                                                         case 1:
                                                             if(authenticateDataLength === i){
                                                                 // return "Block Group!"
@@ -560,8 +559,8 @@ export default {
                                                             }
                                                             break;
                                                         case 3:
-                                                            // ALL OK, RETURN TO REACT
-                                                            console.log('Auth DONE! Admin and User');
+                                                            console.log('HEREZERE');
+                                                            return 3;
                                                             break;
                                                     }
                                                 }
@@ -584,7 +583,7 @@ export default {
                                             if(user_async === true && admin_async === true && block_async === true){
                                                 console.log('all async done!');
 
-                                                switch(checkAllPasses(user, admin, block, login, password)) {
+                                                switch(checkAllPasses(user, admin, block)) {
                                                     case 1:
                                                         if(authenticateDataLength === i){
                                                             // return "Block Group!"
@@ -614,8 +613,8 @@ export default {
                                                         }
                                                         break;
                                                     case 3:
-                                                        // ALL OK, RETURN TO REACT
-                                                        console.log('Auth DONE! Admin and User');
+                                                        console.log('HEREZERE');
+                                                        return 3;
                                                         break;
                                                 }
                                             }
@@ -623,7 +622,7 @@ export default {
                                     }
                                 }
 
-    // =======================================================================================================
+                                // =======================================================================================================
 
                             }
                             else {
@@ -643,9 +642,9 @@ export default {
                                 }
                             }
                         });
-                    }
 
-                    return login;
+                        console.log('123');
+                    }
                 }else{
                     // return "Authenticate data is required!"
                     throw new Error("Authenticate data is required!")
