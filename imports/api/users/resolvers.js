@@ -4,6 +4,8 @@ import Authenticate from "../authenticate/authenticate";
 
 const AD = require('activedirectory2').promiseWrapper;
 
+import { Roles } from 'meteor/alanning:roles'
+
 // ДЛЯ ПРОВЕРКИ КАКИЕ УРОВНИ ДОСТУПА БЫЛИ ПРОЙДЕНЫ
 const checkPassBlockTrue = (block) => {
     if(block === true){
@@ -123,6 +125,17 @@ const totalCheck = (user, admin, block, authenticateDataLength, i, ad, login, pa
 export default {
     Query: {
         user(obj, args, { user }) {
+            if(user){
+                if(user.profile.admin === 1){
+                    Roles.removeUsersFromRoles(user._id, 'user');
+                    Roles.addUsersToRoles(user._id, 'super-admin')
+                }
+                else if(user.profile.user === 1) {
+                    Roles.removeUsersFromRoles(user._id, 'super-admin');
+                    Roles.addUsersToRoles(user._id, 'user')
+                }
+            }
+
             return user || {};
         }
     },

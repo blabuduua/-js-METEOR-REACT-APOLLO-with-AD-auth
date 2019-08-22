@@ -1,5 +1,5 @@
 import React from 'react'
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/react-hooks'
 import { gql } from "apollo-boost"
 
 const authenticate = gql`
@@ -45,13 +45,10 @@ export default LoginForm = (props) => {
                         },
                         error => {
                             if(!error){
-                                // НАЗНАЧАЕМ ДОСТУПЫ МЕТЕОР
-
                                 props.client.resetStore();
                             }else{
                                 console.log('cb register ' + error);
 
-                                // НАЗНАЧАЕМ ДОСТУПЫ МЕТЕОР
                                 Meteor.loginWithPassword(obj.login, obj.password,
                                     error => {
                                         if(!error){
@@ -96,8 +93,6 @@ export default LoginForm = (props) => {
                         },
                         error => {
                             if(!error){
-                                // НАЗНАЧАЕМ ДОСТУПЫ МЕТЕОР
-
                                 props.client.resetStore();
                             }else{
                                 console.log('cb register ' + error);
