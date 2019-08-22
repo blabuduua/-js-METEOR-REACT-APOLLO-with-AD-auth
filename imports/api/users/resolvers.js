@@ -8,78 +8,114 @@ const AD = require('activedirectory2').promiseWrapper;
 const checkPassBlockTrue = (block) => {
     if(block === true){
         console.log('Authentication failed! block === true');
-
         return true;
     }
-
     return false;
 };
 
 const checkPassUserAdminBlockFalse = (user, admin, block) => {
     if(user === false && admin === false && block === false){
         console.log('Authentication failed! user === false && admin === false && block === false');
-
         return true;
     }
-
     return false;
 };
 
 const checkPassUserAdminTrue = (user, admin) => {
     if(user === true && admin === true){
         console.log('Authentication DONE! user === true && admin === true');
-
         return true;
     }
+    return false;
+};
 
+const checkPassAdminTrue = (admin) => {
+    if(admin === true){
+        console.log('Authentication DONE! admin === true');
+        return true;
+    }
     return false;
 };
 
 const checkPassUserTrue = (user) => {
     if(user === true){
-
+        console.log('Authentication DONE! user === true');
+        return true;
     }
-
-    return true;
-};
-
-const checkPassAdminTrue = (admin) => {
-    if(admin === true){
-
-    }
-
-    return true;
+    return false;
 };
 
 const checkAllPasses = (user, admin, block) => {
     if(checkPassBlockTrue(block)){
         return 1;
     }
-
     if(checkPassUserAdminBlockFalse(user, admin, block)){
         return 2;
     }
-
     if(checkPassUserAdminTrue(user, admin)){
         return 3;
     }
+    if(checkPassAdminTrue(admin)){
+        return 4;
+    }
+    if(checkPassUserTrue(user)){
+        return 5;
+    }
 };
 
-const totalCheck = (user, admin, block, authenticateDataLength, i) => {
+const totalCheck = (user, admin, block, authenticateDataLength, i, ad, login, password) => {
     switch(checkAllPasses(user, admin, block)) {
         case 1:
             if(authenticateDataLength === i){
-                return "1111" // Block Group!
+                return "1" // Block Group!
             }
             break;
         case 2:
             if(authenticateDataLength === i){
-                return "11111" // All miss!
+                return "11" // All miss!
             }
             break;
         case 3:
-            console.log('HEREZERE');
-            return '3';
+            return ad.findUser(login).then((user) => {
+                if (! user) {
+                    console.log('User: ' + login + ' not found.');
+                }else{
+                    user.login = login;
+                    user.password = password;
+                    user.access = 3;
+                    return JSON.stringify(user);
+                }
+            }).catch(() => {
+                console.log('Error in find user query, ADMIN & USER');
+            });
+            break;
+        case 4:
+            return ad.findUser(login).then((user) => {
+                if (! user) {
+                    console.log('User: ' + login + ' not found.');
+                }else{
+                    user.login = login;
+                    user.password = password;
+                    user.access = 4;
+                    return JSON.stringify(user);
+                }
+            }).catch(() => {
+                console.log('Error in find user query, ADMIN');
+            });
+            break;
+        case 5:
+            return ad.findUser(login).then((user) => {
+                if (! user) {
+                    console.log('User: ' + login + ' not found.');
+                }else{
+                    user.login = login;
+                    user.password = password;
+                    user.access = 5;
+                    return JSON.stringify(user);
+                }
+            }).catch(() => {
+                console.log('Error in find user query, USER');
+            });
             break;
     }
 };
@@ -173,13 +209,16 @@ export default {
                         const config = {
                             url: url,
                             baseDN: baseDN,
-                            username: login + "@flyuia.com",
-                            password: password
+                            username: login,
+                            password: password,
+                            attributes: {
+                                user: [ 'mail', 'employeeID' , 'displayName' ]
+                            }
                         };
 
                         const ad = new AD(config);
 
-                        return await ad.authenticate(login + "@flyuia.com", password).then((auth) => {
+                        return await ad.authenticate(login, password).then((auth) => {
                             if(auth) {
                                 console.log('Authenticated!');
 
@@ -194,13 +233,13 @@ export default {
                                             const forbidden_config = {
                                                 url: url,
                                                 baseDN: exploaded_forbiddenDN[u],
-                                                username: login + "@flyuia.com",
+                                                username: login,
                                                 password: password
                                             };
 
                                             const forbidden_ad = new AD(forbidden_config);
 
-                                            return forbidden_ad.authenticate(login + "@flyuia.com", password).then((auth) => {
+                                            return forbidden_ad.authenticate(login, password).then((auth) => {
                                                 if (auth) {
                                                     console.log('Authenticated exploaded_forbiddenDN!');
 
@@ -223,20 +262,21 @@ export default {
                                             });
                                         }
                                     }
-                                }else{
+                                }
+                                else if(exploaded_forbiddenDN !== ''){
                                     console.log('exploaded_forbiddenDN string or empty!');
 
                                     if(exploaded_forbiddenDN !== ''){
                                         const forbidden_config = {
                                             url: url,
                                             baseDN: exploaded_forbiddenDN,
-                                            username: login + "@flyuia.com",
+                                            username: login,
                                             password: password
                                         };
 
                                         const forbidden_ad = new AD(forbidden_config);
 
-                                        return forbidden_ad.authenticate(login + "@flyuia.com", password).then((auth) => {
+                                        return forbidden_ad.authenticate(login, password).then((auth) => {
                                             if (auth) {
                                                 console.log('Authenticated exploaded_forbiddenDN!');
 
@@ -261,8 +301,8 @@ export default {
                                 }
 
                                 // ДЛЯ ПРОВЕРКИ НАЛИЧИЯ ГРУПП
-                                if(exploaded_userGroupsNames === '' && exploaded_adminGroupsNames === '' && exploaded_blockGroupsNames === ''){
-                                    throw new Error("Authenticate data is required, all groups is empty!")
+                                if(exploaded_userGroupsNames === '' && exploaded_adminGroupsNames === '' && exploaded_blockGroupsNames === '' || exploaded_adminGroupsNames === ''){
+                                    throw new Error("Authenticate data is required, all groups is empty! Or Admin Group is empty!")
                                 }
 
 // =========================================================================================================================================
@@ -277,7 +317,7 @@ export default {
                                         console.log(exploaded_blockGroupsNames[w]);
 
                                         if(exploaded_blockGroupsNames[w] !== '' && block !== true){
-                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames[w]).then((isMember) => {
+                                            return ad.isUserMemberOf(login, exploaded_blockGroupsNames[w]).then((isMember) => {
                                                 block = isMember;
 
                                                 console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames[w] + ': ' + isMember);
@@ -290,10 +330,9 @@ export default {
                                                     for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
 
                                                         console.log(exploaded_adminGroupsNames[r]);
-                                                        console.log(async);
 
                                                         if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
-                                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames[r]).then((isMember) => {
+                                                            return ad.isUserMemberOf(login, exploaded_adminGroupsNames[r]).then((isMember) => {
                                                                 admin = isMember;
 
                                                                 console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
@@ -305,12 +344,12 @@ export default {
 
                                                                     for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
                                                                         if(exploaded_userGroupsNames[t] !== '' && user !== true){
-                                                                            return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                            return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
                                                                                 user = isMember;
 
                                                                                 console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                                return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                                return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                             }).catch((error) => {
                                                                                 console.log('ERROR! ' + error);
                                                                             });
@@ -321,12 +360,12 @@ export default {
 
                                                                         console.log('string userGroup');
 
-                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                        return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
                                                                             user = isMember;
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -341,7 +380,7 @@ export default {
                                                     if(exploaded_adminGroupsNames !== '' && admin !== true){
                                                         console.log('string adminGroup');
 
-                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames).then((isMember) => {
+                                                        return ad.isUserMemberOf(login, exploaded_adminGroupsNames).then((isMember) => {
                                                             admin = isMember;
 
                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
@@ -353,12 +392,12 @@ export default {
 
                                                                 for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
                                                                     if(exploaded_userGroupsNames[t] !== '' && user !== true){
-                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                        return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
                                                                             user = isMember;
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -369,12 +408,12 @@ export default {
 
                                                                     console.log('string userGroup');
 
-                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                    return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
                                                                         user = isMember;
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
@@ -391,29 +430,78 @@ export default {
                                         }
                                     }
                                 }else{
-                                    if(exploaded_blockGroupsNames !== '' && block !== true){
-                                        console.log('string blockGroup');
+                                    if(exploaded_blockGroupsNames !== ''){
+                                        if(block !== true){
+                                            console.log('string blockGroup');
 
-                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_blockGroupsNames).then((isMember) => {
-                                            block = isMember;
+                                            return ad.isUserMemberOf(login, exploaded_blockGroupsNames).then((isMember) => {
+                                                block = isMember;
 
-                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames + ': ' + isMember);
+                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_blockGroupsNames + ': ' + isMember);
 
-                                            // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
-                                            if(Array.isArray(exploaded_adminGroupsNames)){
+                                                // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
+                                                if(Array.isArray(exploaded_adminGroupsNames)){
 
-                                                let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
+                                                    let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
 
-                                                for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
+                                                    for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
 
-                                                    console.log(exploaded_adminGroupsNames[r]);
-                                                    console.log(async);
+                                                        console.log(exploaded_adminGroupsNames[r]);
+                                                        console.log(async);
 
-                                                    if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
-                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames[r]).then((isMember) => {
+                                                        if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
+                                                            return ad.isUserMemberOf(login, exploaded_adminGroupsNames[r]).then((isMember) => {
+                                                                admin = isMember;
+
+                                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
+
+                                                                // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                                if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                                    let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                                    for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                                        if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                            return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                                user = isMember;
+
+                                                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                                return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
+                                                                            }).catch((error) => {
+                                                                                console.log('ERROR! ' + error);
+                                                                            });
+                                                                        }
+                                                                    }
+                                                                }else{
+                                                                    if(exploaded_userGroupsNames !== '' && user !== true){
+
+                                                                        console.log('string userGroup');
+
+                                                                        return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
+                                                                            user = isMember;
+
+                                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
+                                                                        }).catch((error) => {
+                                                                            console.log('ERROR! ' + error);
+                                                                        });
+                                                                    }
+                                                                }
+                                                            }).catch((error) => {
+                                                                console.log('ERROR! ' + error);
+                                                            });
+                                                        }
+                                                    }
+                                                }else{
+                                                    if(exploaded_adminGroupsNames !== '' && admin !== true){
+                                                        console.log('string adminGroup');
+
+                                                        return ad.isUserMemberOf(login, exploaded_adminGroupsNames).then((isMember) => {
                                                             admin = isMember;
 
-                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
+                                                            console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
 
                                                             // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
                                                             if(Array.isArray(exploaded_userGroupsNames)){
@@ -422,12 +510,12 @@ export default {
 
                                                                 for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
                                                                     if(exploaded_userGroupsNames[t] !== '' && user !== true){
-                                                                        return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                        return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
                                                                             user = isMember;
 
                                                                             console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                            return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                            return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                         }).catch((error) => {
                                                                             console.log('ERROR! ' + error);
                                                                         });
@@ -438,15 +526,17 @@ export default {
 
                                                                     console.log('string userGroup');
 
-                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                    return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
                                                                         user = isMember;
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
+                                                                }else{
+                                                                    return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                 }
                                                             }
                                                         }).catch((error) => {
@@ -454,14 +544,27 @@ export default {
                                                         });
                                                     }
                                                 }
-                                            }else{
-                                                if(exploaded_adminGroupsNames !== '' && admin !== true){
-                                                    console.log('string adminGroup');
+                                            }).catch((error) => {
+                                                console.log('ERROR! ' + error);
+                                            });
+                                        }
+                                    }
+                                    else{
+                                        // ДЛЯ БЫСТРОГО ПРОПУСКА АДМИНИСТРАТОРОВ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К АДМИНИСТРАТОРАМ
+                                        if(Array.isArray(exploaded_adminGroupsNames)){
 
-                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_adminGroupsNames).then((isMember) => {
+                                            let exploaded_adminGroupsNamesLength = exploaded_adminGroupsNames.length;
+
+                                            for (let r = 0; r < exploaded_adminGroupsNamesLength; r++) {
+
+                                                console.log(exploaded_adminGroupsNames[r]);
+                                                console.log(async);
+
+                                                if(exploaded_adminGroupsNames[r] !== '' && admin !== true){
+                                                    return ad.isUserMemberOf(login, exploaded_adminGroupsNames[r]).then((isMember) => {
                                                         admin = isMember;
 
-                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
+                                                        console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames[r] + ': ' + isMember);
 
                                                         // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
                                                         if(Array.isArray(exploaded_userGroupsNames)){
@@ -470,12 +573,12 @@ export default {
 
                                                             for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
                                                                 if(exploaded_userGroupsNames[t] !== '' && user !== true){
-                                                                    return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                    return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
                                                                         user = isMember;
 
                                                                         console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
 
-                                                                        return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                        return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                     }).catch((error) => {
                                                                         console.log('ERROR! ' + error);
                                                                     });
@@ -486,12 +589,12 @@ export default {
 
                                                                 console.log('string userGroup');
 
-                                                                return ad.isUserMemberOf(login + "@flyuia.com", exploaded_userGroupsNames).then((isMember) => {
+                                                                return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
                                                                     user = isMember;
 
                                                                     console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
 
-                                                                    return totalCheck(user, admin, block, authenticateDataLength, i);
+                                                                    return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
                                                                 }).catch((error) => {
                                                                     console.log('ERROR! ' + error);
                                                                 });
@@ -502,9 +605,56 @@ export default {
                                                     });
                                                 }
                                             }
-                                        }).catch((error) => {
-                                            console.log('ERROR! ' + error);
-                                        });
+                                        }else{
+                                            if(exploaded_adminGroupsNames !== '' && admin !== true){
+                                                console.log('string adminGroup');
+
+                                                return ad.isUserMemberOf(login, exploaded_adminGroupsNames).then((isMember) => {
+                                                    admin = isMember;
+
+                                                    console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_adminGroupsNames + ': ' + isMember);
+
+                                                    // ДЛЯ БЫСТРОГО ПРОПУСКА ПОЛЬЗОВАТЕЛЕЙ ПРОВЕРЕМ ПРИНАДЛЕЖНОСТЬ К ПОЛЬЗОВАТЕЛЯМ
+                                                    if(Array.isArray(exploaded_userGroupsNames)){
+
+                                                        let exploaded_userGroupsNamesLength = exploaded_userGroupsNames.length;
+
+                                                        for (let t = 0; t < exploaded_userGroupsNamesLength; t++) {
+                                                            if(exploaded_userGroupsNames[t] !== '' && user !== true){
+                                                                return ad.isUserMemberOf(login, exploaded_userGroupsNames[t]).then((isMember) => {
+                                                                    user = isMember;
+
+                                                                    console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames[t] + ': ' + isMember);
+
+                                                                    return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
+                                                                }).catch((error) => {
+                                                                    console.log('ERROR! ' + error);
+                                                                });
+                                                            }
+                                                        }
+                                                    }else{
+                                                        if(exploaded_userGroupsNames !== '' && user !== true){
+
+                                                            console.log('string userGroup');
+
+                                                            return ad.isUserMemberOf(login, exploaded_userGroupsNames).then((isMember) => {
+                                                                user = isMember;
+
+                                                                console.log(user + "@flyuia.com" + ' isMemberOf ' + exploaded_userGroupsNames + ': ' + isMember);
+
+                                                                return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
+                                                            }).catch((error) => {
+                                                                console.log('ERROR! ' + error);
+                                                            });
+                                                        }else{
+                                                            return totalCheck(user, admin, block, authenticateDataLength, i, ad, login, password);
+                                                        }
+                                                    }
+                                                }).catch((error) => {
+                                                    console.log('ERROR! ' + error);
+                                                });
+                                            }
+                                        }
                                     }
                                 }
 
@@ -534,12 +684,11 @@ export default {
                         });
                     }
                 }else{
-                    // return "Authenticate data is required!"
                     throw new Error("Authenticate data is required!")
                 }
             }else{
-                // return "Login and password is required!"
-                throw new Error("Login and password is required!")
+                // throw new Error("Login and password is required!")
+                return "11111"
             }
         }
     }

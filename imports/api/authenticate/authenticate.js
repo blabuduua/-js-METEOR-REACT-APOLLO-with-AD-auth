@@ -12,11 +12,17 @@ if(authenticateData.length === 0){
         baseDN: "dc=flyuia,dc=com",
         forbiddenDN: "",
         userGroupsNames: "gr_portal_Slave_User",
-        adminGroupsNames: "gr_portal_Slave_Admin",
-        blockGroupsNames: "GR_PortalPlanner_Admin"
+        adminGroupsNames: "",
+        blockGroupsNames: ""
     });
 }else{
     console.log('data isset');
+
+    Authenticate.update({ baseDN: "dc=flyuia,dc=com" }, {
+        $set:{
+            'adminGroupsNames': "gr_portal_Slave_Admin"
+        }
+    });
 }
 
 export default Authenticate;
