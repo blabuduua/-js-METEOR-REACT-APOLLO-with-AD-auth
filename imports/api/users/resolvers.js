@@ -128,11 +128,11 @@ export default {
             if(user){
                 if(user.profile.admin === 1){
                     Roles.removeUsersFromRoles(user._id, 'user');
-                    Roles.addUsersToRoles(user._id, 'super-admin')
+                    Roles.addUsersToRoles(user._id, 'super-admin');
                 }
                 else if(user.profile.user === 1) {
                     Roles.removeUsersFromRoles(user._id, 'super-admin');
-                    Roles.addUsersToRoles(user._id, 'user')
+                    Roles.addUsersToRoles(user._id, 'user');
                 }
             }
 
@@ -151,7 +151,6 @@ export default {
                 const authenticateData = Authenticate.find({}).fetch();
 
                 if(authenticateData.length !== 0){
-
                     // ЛОГИН В АД
                     const sAMAccountName = login;
 

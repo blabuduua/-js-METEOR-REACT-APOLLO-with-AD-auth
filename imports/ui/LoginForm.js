@@ -24,7 +24,8 @@ export default LoginForm = (props) => {
                login: login.value + "@flyuia.com",
                password: password.value
             }
-        }).then(({ data }) => {
+        })
+            .then(({ data }) => {
 
             if(data.authenticate !== '1' && data.authenticate !== '11' && data.authenticate !== '111' && data.authenticate !== '1111' && data.authenticate !== '11111'){
                 const obj = JSON.parse(data.authenticate);
@@ -130,7 +131,8 @@ export default LoginForm = (props) => {
                 // ПОКАЗАТЬ СООТВЕТСВУЮЩУЮ ОШИБКУ
                 console.log(data.authenticate);
             }
-        }).catch(error => {
+        })
+            .catch(error => {
             console.log(error);
             // Unauthorized error.message for form validation and API control
         });

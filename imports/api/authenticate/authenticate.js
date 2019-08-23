@@ -18,11 +18,11 @@ if(authenticateData.length === 0){
 }else{
     console.log('data isset');
 
-/*    Authenticate.update({ baseDN: "dc=flyuia,dc=com" }, {
+    Authenticate.update({ baseDN: "dc=flyuia,dc=com" }, {
         $set:{
-            'adminGroupsNames': "gr_portsadadsl_Slave_Admin"
+            'userGroupsNames': "gr_portsadadsl_Slave_Admin"
         }
-    });*/
+    });
 }
 
 export default Authenticate;
