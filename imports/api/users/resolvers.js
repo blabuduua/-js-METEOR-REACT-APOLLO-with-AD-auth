@@ -82,6 +82,12 @@ const totalCheck = (user, admin, block, authenticateDataLength, i, ad, login, pa
                 if (! user) {
                     console.log('User: ' + login + ' not found.');
                 }else{
+                    // Попытка найти пользователя в бд и передать его id
+                    const mongo_user = Accounts.findUserByEmail(login)
+                    if(mongo_user){
+                        Accounts.setPassword(mongo_user._id, password)
+                    }
+
                     user.login = login;
                     user.password = password;
                     user.access = 3;
@@ -96,6 +102,12 @@ const totalCheck = (user, admin, block, authenticateDataLength, i, ad, login, pa
                 if (! user) {
                     console.log('User: ' + login + ' not found.');
                 }else{
+                    // Попытка найти пользователя в бд и передать его id
+                    const mongo_user = Accounts.findUserByEmail(login)
+                    if(mongo_user){
+                        Accounts.setPassword(mongo_user._id, password)
+                    }
+
                     user.login = login;
                     user.password = password;
                     user.access = 4;
@@ -110,6 +122,12 @@ const totalCheck = (user, admin, block, authenticateDataLength, i, ad, login, pa
                 if (! user) {
                     console.log('User: ' + login + ' not found.');
                 }else{
+                    // Попытка найти пользователя в бд и передать его id
+                    const mongo_user = Accounts.findUserByEmail(login)
+                    if(mongo_user){
+                        Accounts.setPassword(mongo_user._id, password)
+                    }
+
                     user.login = login;
                     user.password = password;
                     user.access = 5;

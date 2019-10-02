@@ -71,7 +71,7 @@ export default LoginForm = (props) => {
                                             props.client.resetStore();
                                         }else{
                                             // ОБНОВИТЬ ПАРОЛЬ И ПОВТОРИТЬ ПОПЫТКУ ВХОДА
-
+                                            
                                         }
                                         console.log('cb login ' +error)
                                     });
