@@ -7,7 +7,10 @@ import ApolloClient from 'apollo-boost'
 
 import { ApolloProvider } from '@apollo/react-hooks';
 
+import {BrowserRouter, Route, Switch} from "react-router-dom";
+
 import App from '../../ui/App'
+import Layout from "../../ui/components/Layouts/AdminLayout";
 
 const client = new ApolloClient({
     uri: '/graphql',
@@ -26,5 +29,11 @@ const ApolloApp = () => (
 );
 
 Meteor.startup(() => {
-    render(<ApolloApp />, document.getElementById('app'))
+    render(<BrowserRouter>
+            <Layout>
+                <Switch>
+                    <Route  path="/" exact component={ApolloApp}/>
+                </Switch>
+            </Layout>
+          </BrowserRouter>, document.getElementById('app'));
 });
