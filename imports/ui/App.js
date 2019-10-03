@@ -34,7 +34,7 @@ export default App = () => {
 
     return (
         <div>
-            { !data.user._id && <RegisterForm client={client} /> }
+            {/* !data.user._id && <RegisterForm client={client} /> */}
 
             { data.user._id ? (
                 <div>
